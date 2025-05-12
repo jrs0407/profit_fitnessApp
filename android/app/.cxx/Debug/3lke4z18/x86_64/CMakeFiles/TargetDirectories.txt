@@ -1,0 +1,2 @@
+C:/Users/jesus/OneDrive/Escritorio/prueba/profit_app/android/app/.cxx/Debug/3lke4z18/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/jesus/OneDrive/Escritorio/prueba/profit_app/android/app/.cxx/Debug/3lke4z18/x86_64/CMakeFiles/rebuild_cache.dir
