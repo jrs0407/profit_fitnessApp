@@ -1,0 +1,2 @@
+C:/Users/jesus/OneDrive/Escritorio/PROFIT/profit_app/android/app/.cxx/RelWithDebInfo/4w4e3y32/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/jesus/OneDrive/Escritorio/PROFIT/profit_app/android/app/.cxx/RelWithDebInfo/4w4e3y32/armeabi-v7a/CMakeFiles/rebuild_cache.dir

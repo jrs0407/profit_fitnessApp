@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1048412238130",
+    "project_id": "profit-app-ee191",
+    "storage_bucket": "profit-app-ee191.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1048412238130:android:7f36afbfc6ce38cd27272b",
+        "android_client_info": {
+          "package_name": "com.example.profit_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCy0DBhZPAWhZeMcaRZZAgAR-2_rJCnvug"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
