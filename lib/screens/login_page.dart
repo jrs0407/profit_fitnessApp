@@ -80,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
           final isTrainer = userDoc.data()?['trainer'] ?? false;
           final isAdmin = userDoc.data()?['admin'] ?? false;
 
-          Navigator.pushReplacement(
+          Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
               builder: (context) {
@@ -93,6 +93,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                 }
               },
             ),
+            (route) => false,
           );
         } else {
           _showError('Usuario autenticado pero no encontrado en la base de datos.');
@@ -106,7 +107,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
       } else if (e.code == 'invalid-email') {
         _showError('Correo inválido.');
       } else {
-        _showError('Error: ${e.message}');
+        _showError('Error: La contraseña o el correo son incorrectos.');
       }
     } catch (e) {
       _showError('Error al iniciar sesión: $e');
@@ -162,7 +163,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
         final isTrainer = freshUserDoc.data()?['trainer'] ?? false;
         final isAdmin = freshUserDoc.data()?['admin'] ?? false;
 
-        Navigator.pushReplacement(
+        Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
             builder: (context) {
@@ -175,6 +176,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
               }
             },
           ),
+          (route) => false,
         );
       }
     } catch (e) {
