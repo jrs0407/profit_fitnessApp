@@ -13,7 +13,6 @@ class CreateRoutineScreen extends StatefulWidget {
 class _CreateRoutineScreenState extends State<CreateRoutineScreen> {
   final _nameController = TextEditingController();
   final _descController = TextEditingController();
-  int _nivel = 0;
   bool _isSaving = false;
 
   Future<void> _saveRoutine() async {
@@ -35,7 +34,6 @@ class _CreateRoutineScreenState extends State<CreateRoutineScreen> {
         'descripcion': desc,
         'entrenamientos': [],
         'creado': Timestamp.now(),
-        'nivel': _nivel,
       });
 
       await FirebaseFirestore.instance.collection('users').doc(widget.userId).update({
@@ -51,17 +49,6 @@ class _CreateRoutineScreenState extends State<CreateRoutineScreen> {
     }
   }
 
-  void _incrementNivel() {
-    setState(() {
-      if (_nivel < 99) _nivel++;
-    });
-  }
-
-  void _decrementNivel() {
-    setState(() {
-      if (_nivel > 0) _nivel--;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -116,31 +103,6 @@ class _CreateRoutineScreenState extends State<CreateRoutineScreen> {
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
                 ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.remove_circle_outline,
-                        size: 30, color: Color(0xFF0DCAF0)),
-                    onPressed: _decrementNivel,
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'Nivel: $_nivel',
-                    style: const TextStyle(
-                        fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
-                  ),
-                  const SizedBox(width: 12),
-                  IconButton(
-                    icon: const Icon(Icons.add_circle_outline,
-                        size: 30, color: Color(0xFF0DCAF0)),
-                    onPressed: _incrementNivel,
-                  ),
-                ],
               ),
             ),
             const SizedBox(height: 30),
