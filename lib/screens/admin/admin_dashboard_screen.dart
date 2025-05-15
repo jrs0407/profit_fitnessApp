@@ -14,6 +14,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
+  //Para evitar fugas de memoria, para liberar el controlador de texto y los recursos
   @override
   void dispose() {
     _searchController.dispose();
