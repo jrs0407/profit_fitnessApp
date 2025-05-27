@@ -74,59 +74,64 @@ class _UserRoutineDashboardScreenState
 
     return _loadEntrenamientosDelDia(rutinaIds, normalizeDay(_selectedDay));
   }
-
   Future<List<Map<String, dynamic>>> _loadEntrenamientosDelDia(
     List<dynamic> rutinaIds,
     String diaSeleccionado,
   ) async {
     final firestore = FirebaseFirestore.instance;
     final int userLevel = int.tryParse(_userLevel ?? '0') ?? 0;
+    
+    // Obtener el estado premium del usuario
+    final userDoc = await firestore.collection('users').doc(widget.userId).get();
+    final bool isPremium = userDoc.data()?['premium'] ?? false;
 
     List<Map<String, dynamic>> resultado = [];
 
-    // Cargar entrenamientos estándar
-    final rutinas = await Future.wait(rutinaIds.map((id) async {
-      final doc = await firestore.collection('rutinas').doc(id).get();
-      return {
-        'id': id,
-        'data': doc.data() ?? {},
-      };
-    }));
+    // Cargar entrenamientos estándar solo si el usuario es premium
+    if (isPremium) {
+      final rutinas = await Future.wait(rutinaIds.map((id) async {
+        final doc = await firestore.collection('rutinas').doc(id).get();
+        return {
+          'id': id,
+          'data': doc.data() ?? {},
+        };
+      }));
 
-    final entrenamientosQuery = await firestore
-        .collection('entrenamientos')
-        .where('diaSemana', isEqualTo: diaSeleccionado)
-        .get();
-
-    final entrenamientosFiltrados = entrenamientosQuery.docs
-        .where((doc) => rutinaIds.contains(doc['idRutina']))
-        .toList();
-
-    for (final doc in entrenamientosFiltrados) {
-      final entrenamientoId = doc.id;
-      final entrenamiento = doc.data();
-      entrenamiento['id'] = entrenamientoId;
-
-      final rutina = rutinas.firstWhere(
-        (r) => r['id'] == entrenamiento['idRutina'],
-        orElse: () => {'data': {}},
-      )['data'];
-
-      final ejerciciosQuery = await firestore
-          .collection('ejercicios')
-          .where('idEntrenamiento', isEqualTo: entrenamientoId)
+      final entrenamientosQuery = await firestore
+          .collection('entrenamientos')
+          .where('diaSemana', isEqualTo: diaSeleccionado)
           .get();
 
-      final ejercicios = ejerciciosQuery.docs.map((e) => e.data()).toList();
+      final entrenamientosFiltrados = entrenamientosQuery.docs
+          .where((doc) => rutinaIds.contains(doc['idRutina']))
+          .toList();
 
-      resultado.add({
-        'rutina': rutina,
-        'entrenamiento': entrenamiento,
-        'ejercicios': ejercicios,
-      });
+      for (final doc in entrenamientosFiltrados) {
+        final entrenamientoId = doc.id;
+        final entrenamiento = doc.data();
+        entrenamiento['id'] = entrenamientoId;
+
+        final rutina = rutinas.firstWhere(
+          (r) => r['id'] == entrenamiento['idRutina'],
+          orElse: () => {'data': {}},
+        )['data'];
+
+        final ejerciciosQuery = await firestore
+            .collection('ejercicios')
+            .where('idEntrenamiento', isEqualTo: entrenamientoId)
+            .get();
+
+        final ejercicios = ejerciciosQuery.docs.map((e) => e.data()).toList();
+
+        resultado.add({
+          'rutina': rutina,
+          'entrenamiento': entrenamiento,
+          'ejercicios': ejercicios,
+        });
+      }
     }
 
-    // Cargar entrenamientos por nivel
+    // Cargar entrenamientos por nivel (disponible para todos los usuarios)
     final rutinasLvlQuery = await firestore.collection('rutinaslvl').get();
     final rutinasLvl = rutinasLvlQuery.docs
         .where((doc) => (doc['nivel'] ?? 0) <= userLevel)
