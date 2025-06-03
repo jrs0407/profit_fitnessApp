@@ -382,8 +382,7 @@ class _CountdownScreenState extends State<CountdownScreen>
                       ),
                     ],
                   ),
-                ),
-                if (_youtubeController != null)
+                ),                if (widget.multimediaUrl != null)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 20),
                     child: Container(
@@ -399,11 +398,25 @@ class _CountdownScreenState extends State<CountdownScreen>
                         ],
                       ),
                       clipBehavior: Clip.antiAlias,
-                      child: YoutubePlayer(
-                        controller: _youtubeController!,
-                        showVideoProgressIndicator: true,
-                        progressIndicatorColor: Colors.deepPurpleAccent,
-                      ),
+                      child: _youtubeController != null
+                          ? YoutubePlayer(
+                              controller: _youtubeController!,
+                              showVideoProgressIndicator: true,
+                              progressIndicatorColor: Colors.deepPurpleAccent,
+                            )
+                          : Image.network(
+                              widget.multimediaUrl!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                print('Error loading image: $error');
+                                return const Center(
+                                  child: Text(
+                                    'No se pudo cargar la imagen',
+                                    style: TextStyle(color: Colors.red),
+                                  ),
+                                );
+                              },
+                            ),
                     ),
                   ),
                 Padding(

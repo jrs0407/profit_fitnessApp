@@ -178,8 +178,7 @@ class EntrenamientoDetalleScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-                    ),
-                    if (videoId != null)
+                    ),                    if (url != null && url.isNotEmpty)
                       Container(
                         margin: const EdgeInsets.symmetric(horizontal: 16),
                         decoration: BoxDecoration(
@@ -198,17 +197,38 @@ class EntrenamientoDetalleScreen extends StatelessWidget {
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(14),
-                          child: YoutubePlayer(
-                            controller: YoutubePlayerController(
-                              initialVideoId: videoId,
-                              flags: const YoutubePlayerFlags(
-                                autoPlay: false,
-                                mute: false,
-                              ),
-                            ),
-                            showVideoProgressIndicator: true,
-                            progressIndicatorColor: primaryPink,
-                          ),
+                          child: videoId != null
+                              ? YoutubePlayer(
+                                  controller: YoutubePlayerController(
+                                    initialVideoId: videoId,
+                                    flags: const YoutubePlayerFlags(
+                                      autoPlay: false,
+                                      mute: false,
+                                    ),
+                                  ),
+                                  showVideoProgressIndicator: true,
+                                  progressIndicatorColor: primaryPink,
+                                )
+                              : Image.network(
+                                  url,
+                                  height: 200,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    print('Error loading image: $error');
+                                    return Container(
+                                      height: 200,
+                                      width: double.infinity,
+                                      color: Colors.grey[900],
+                                      child: const Center(
+                                        child: Text(
+                                          'No se pudo cargar la imagen',
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
                         ),
                       ),
                     Padding(
