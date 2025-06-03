@@ -1,7 +1,10 @@
+// Importaciones necesarias para la funcionalidad de la pantalla
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:profit_app/widgets/custom_chart.dart';
 
+/// Pantalla que muestra el progreso global de los ejercicios de todos los usuarios premium
+/// Permite buscar ejercicios específicos y visualizar su progreso en el tiempo
 class GlobalExerciseProgressScreen extends StatefulWidget {
   const GlobalExerciseProgressScreen({Key? key}) : super(key: key);
 
@@ -10,20 +13,29 @@ class GlobalExerciseProgressScreen extends StatefulWidget {
 }
 
 class _GlobalExerciseProgressScreenState extends State<GlobalExerciseProgressScreen> with SingleTickerProviderStateMixin {
+  // Controlador para el campo de búsqueda, inicializado con 'Press Banca' como valor por defecto
   final TextEditingController _searchController = TextEditingController(text: 'Press Banca');
+  
+  // Almacena los registros de ejercicios agrupados por usuario
   Map<String, List<Map<String, dynamic>>> _userLogs = {};
+  
+  // Mapeo de IDs de usuario a nombres completos
   Map<String, String> _userNames = {};
+  
+  // Controladores de animación para efectos visuales
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
+    // Configuración de la animación de entrada
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
     );
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(_animationController);
+    // Carga inicial de datos
     _fetchAllLogs();
     _animationController.forward();
   }
@@ -34,11 +46,13 @@ class _GlobalExerciseProgressScreenState extends State<GlobalExerciseProgressScr
     super.dispose();
   }
 
+  /// Obtiene todos los registros de ejercicios de usuarios premium desde Firestore
+  /// Filtra los resultados según el término de búsqueda actual
   Future<void> _fetchAllLogs() async {
     final snapshot = await FirebaseFirestore.instance.collection('logs_ejercicios').get();
     final usersSnapshot = await FirebaseFirestore.instance.collection('users').get();
     
-    // Primero, obtener solo los IDs de usuarios premium
+    // Obtiene solo los IDs de usuarios premium
     Set<String> premiumUserIds = {};
     for (var userDoc in usersSnapshot.docs) {
       final data = userDoc.data();
@@ -50,19 +64,20 @@ class _GlobalExerciseProgressScreenState extends State<GlobalExerciseProgressScr
     Map<String, List<Map<String, dynamic>>> groupedLogs = {};
     Map<String, String> userNames = {};
 
-    // Eliminamos espacios del término de búsqueda
+    // Normaliza el término de búsqueda eliminando espacios
     final searchTerm = _searchController.text.toLowerCase().replaceAll(' ', '').trim();
 
+    // Procesa cada registro de ejercicio
     for (var doc in snapshot.docs) {
       final data = doc.data();
       final userId = data['userId'];
       
-      // No vemos usuarios que no son premium
+      // Filtra usuarios no premium
       if (!premiumUserIds.contains(userId)) continue;
 
       final exerciseName = data['nombreEjercicio']?.toString().toLowerCase().replaceAll(' ', '').trim() ?? '';
 
-      // Compara los nombres de los ejercicios sin espacios
+      // Filtra ejercicios que no coinciden con la búsqueda
       if (!exerciseName.contains(searchTerm)) continue;
 
       final log = {
@@ -73,7 +88,7 @@ class _GlobalExerciseProgressScreenState extends State<GlobalExerciseProgressScr
       groupedLogs.putIfAbsent(userId, () => []).add(log);
     }
 
-    // Obtener los nombres de los usuarios premium
+    // Obtiene los nombres completos de los usuarios premium
     for (var userDoc in usersSnapshot.docs) {
       if (premiumUserIds.contains(userDoc.id)) {
         final data = userDoc.data();
@@ -81,7 +96,7 @@ class _GlobalExerciseProgressScreenState extends State<GlobalExerciseProgressScr
       }
     }
 
-    // Ordenar los logs por fecha
+    // Ordena los registros por fecha
     for (var logs in groupedLogs.values) {
       logs.sort((a, b) => a['fecha'].compareTo(b['fecha']));
     }
@@ -92,6 +107,7 @@ class _GlobalExerciseProgressScreenState extends State<GlobalExerciseProgressScr
     });
   }
 
+  /// Maneja los cambios en el campo de búsqueda
   void _onSearchChanged() {
     _fetchAllLogs();
   }
@@ -106,6 +122,7 @@ class _GlobalExerciseProgressScreenState extends State<GlobalExerciseProgressScr
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Título de la pantalla
               const Text(
                 'Progreso Global',
                 style: TextStyle(
@@ -115,6 +132,8 @@ class _GlobalExerciseProgressScreenState extends State<GlobalExerciseProgressScr
                 ),
               ),
               const SizedBox(height: 20),
+              
+              // Campo de búsqueda personalizado
               Container(
                 decoration: BoxDecoration(
                   color: const Color(0xFF1E1E1E),
@@ -154,6 +173,8 @@ class _GlobalExerciseProgressScreenState extends State<GlobalExerciseProgressScr
                 ),
               ),
               const SizedBox(height: 24),
+              
+              // Lista de gráficos de progreso o mensaje de no datos
               Expanded(
                 child: _userLogs.isEmpty
                     ? Center(
@@ -177,7 +198,7 @@ class _GlobalExerciseProgressScreenState extends State<GlobalExerciseProgressScr
                         ),
                       )
                     : ListView(
-                        physics: const BouncingScrollPhysics(),
+                        physics: const BouncingScrollPhysics(), // Efecto de rebote al hacer scroll
                         children: _userLogs.entries.map((entry) {
                           return CustomChart(
                             userName: _userNames[entry.key] ?? 'Usuario Desconocido',
