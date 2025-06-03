@@ -408,13 +408,7 @@ class _CountdownScreenState extends State<CountdownScreen>
                               widget.multimediaUrl!,
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {
-                                print('Error loading image: $error');
-                                return const Center(
-                                  child: Text(
-                                    'No se pudo cargar la imagen',
-                                    style: TextStyle(color: Colors.red),
-                                  ),
-                                );
+                                return const SizedBox.shrink();
                               },
                             ),
                     ),
