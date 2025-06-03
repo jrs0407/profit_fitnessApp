@@ -2,9 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 
+/// Widget personalizado que muestra una gráfica de línea con el historial
+/// de peso del usuario, incluyendo su nombre y cantidad de registros.
+
 class CustomChart extends StatelessWidget {
+  /// Nombre del usuario que se mostrará en la parte superior de la gráfica
   final String userName;
+
+  /// Lista de registros que contienen la fecha y el peso del usuario
   final List<Map<String, dynamic>> logs;
+
+  /// Animación para controlar la opacidad al mostrar la gráfica
   final Animation<double> fadeAnimation;
 
   const CustomChart({
@@ -14,6 +22,9 @@ class CustomChart extends StatelessWidget {
     required this.fadeAnimation,
   }) : super(key: key);
 
+  /// Convierte los datos de peso en puntos para la gráfica
+  /// [logs] es la lista de registros de peso
+  /// Retorna una lista de [FlSpot] donde x es el índice y y es el peso
   List<FlSpot> _getSpots(List<Map<String, dynamic>> logs) {
     return List.generate(logs.length, (i) {
       final peso = logs[i]['peso'] as num;
@@ -23,13 +34,16 @@ class CustomChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Si no hay datos, retorna un widget vacío
     if (logs.isEmpty) return const SizedBox();
 
+    // Widget principal con animación de fade
     return FadeTransition(
       opacity: fadeAnimation,
       child: Container(
         margin: const EdgeInsets.only(bottom: 32.0),
         padding: const EdgeInsets.all(20),
+        // Decoración del contenedor con gradiente, borde y sombra
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [const Color(0xFF1E1E1E), const Color(0xFF2A2A2A)],
@@ -49,15 +63,18 @@ class CustomChart extends StatelessWidget {
             ),
           ],
         ),
+        // Contenido de la gráfica
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Encabezado con información del usuario
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Nombre del usuario
                     Text(
                       userName,
                       style: const TextStyle(
@@ -67,6 +84,7 @@ class CustomChart extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 4),
+                    // Contador de registros
                     Text(
                       '${logs.length} registros',
                       style: TextStyle(
@@ -79,12 +97,15 @@ class CustomChart extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
+            // Contenedor de la gráfica de línea
             SizedBox(
               height: 200,
               child: LineChart(
                 LineChartData(
                   backgroundColor: Colors.transparent,
+                  // Configuración de los títulos de los ejes
                   titlesData: FlTitlesData(
+                    // Configuración del eje Y (valores de peso)
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
@@ -101,19 +122,19 @@ class CustomChart extends StatelessWidget {
                         },
                       ),
                     ),
+                    // Configuración del eje X (fechas)
                     bottomTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
                         reservedSize: 40,
                         getTitlesWidget: (value, meta) {
                           if (value.toInt() < logs.length) {
-                            final date =
-                                logs[value.toInt()]['fecha'] as DateTime;
+                            final date = logs[value.toInt()]['fecha'] as DateTime;
                             return SideTitleWidget(
                               axisSide: meta.axisSide,
                               space: 8,
                               child: Transform.rotate(
-                                angle: -0.5,
+                                angle: -0.5, // Rotación para mejor legibilidad
                                 child: Text(
                                   DateFormat('dd/MM').format(date),
                                   style: const TextStyle(
@@ -129,30 +150,33 @@ class CustomChart extends StatelessWidget {
                         },
                       ),
                     ),
-                    topTitles:
-                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    rightTitles:
-                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    // Ocultar títulos superiores y derechos
+                    topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
                   ),
+                  // Configuración de la cuadrícula
                   gridData: FlGridData(
                     show: true,
                     drawVerticalLine: false,
                     getDrawingHorizontalLine: (value) => FlLine(
                       color: Colors.white12,
                       strokeWidth: 1,
-                      dashArray: [5, 5],
+                      dashArray: [5, 5], // Líneas punteadas
                     ),
                   ),
+                  // Borde de la gráfica
                   borderData: FlBorderData(
                     show: true,
                     border: Border.all(color: Colors.white24),
                   ),
+                  // Configuración de la línea de datos
                   lineBarsData: [
                     LineChartBarData(
                       spots: _getSpots(logs),
-                      isCurved: false,
+                      isCurved: false, // Línea recta entre puntos
                       barWidth: 4,
                       color: Colors.pinkAccent,
+                      // Configuración de los puntos en la línea
                       dotData: FlDotData(
                         show: true,
                         getDotPainter: (spot, percent, barData, index) =>
@@ -163,6 +187,7 @@ class CustomChart extends StatelessWidget {
                           strokeColor: Colors.white,
                         ),
                       ),
+                      // Área sombreada debajo de la línea
                       belowBarData: BarAreaData(
                         show: true,
                         gradient: LinearGradient(

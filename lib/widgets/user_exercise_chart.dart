@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 
+/// Widget que muestra una gráfica de línea para visualizar el progreso
+/// del peso del usuario a lo largo del tiempo.
 class UserExerciseChart extends StatelessWidget {
+  /// Lista de registros que contienen la fecha y el peso del usuario
   final List<Map<String, dynamic>> logs;
+  
+  /// Animación para controlar la opacidad al mostrar la gráfica
   final Animation<double> fadeAnimation;
 
   const UserExerciseChart({
@@ -12,6 +17,8 @@ class UserExerciseChart extends StatelessWidget {
     required this.fadeAnimation,
   }) : super(key: key);
 
+  /// Convierte los datos de peso en puntos para la gráfica
+  /// Retorna una lista de [FlSpot] donde x es el índice y y es el peso
   List<FlSpot> _getChartSpots() {
     return List.generate(logs.length, (index) {
       final peso = logs[index]['peso'] as num;
@@ -21,6 +28,7 @@ class UserExerciseChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Si no hay datos, muestra un mensaje centrado con un ícono
     if (logs.isEmpty) {
       return Center(
         child: Column(
@@ -49,10 +57,12 @@ class UserExerciseChart extends StatelessWidget {
       );
     }
 
+    // Contenedor principal con animación de fade
     return FadeTransition(
       opacity: fadeAnimation,
       child: Container(
         padding: const EdgeInsets.all(16),
+        // Decoración del contenedor con gradiente y sombra
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -71,10 +81,13 @@ class UserExerciseChart extends StatelessWidget {
             ),
           ],
         ),
+        // Configuración de la gráfica de línea
         child: LineChart(
           LineChartData(
             backgroundColor: Colors.transparent,
+            // Configuración de los títulos de los ejes
             titlesData: FlTitlesData(
+              // Configuración del eje Y (valores de peso)
               leftTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
@@ -92,6 +105,7 @@ class UserExerciseChart extends StatelessWidget {
                   ),
                 ),
               ),
+              // Configuración del eje X (fechas)
               bottomTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
@@ -118,31 +132,36 @@ class UserExerciseChart extends StatelessWidget {
                   },
                 ),
               ),
+              // Ocultar títulos superiores y derechos
               topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
               rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
             ),
+            // Configuración de la cuadrícula
             gridData: FlGridData(
               show: true,
               drawVerticalLine: false,
               getDrawingHorizontalLine: (value) => FlLine(
                 color: Colors.white12,
                 strokeWidth: 1,
-                dashArray: [5, 5],
+                dashArray: [5, 5], // Líneas punteadas
               ),
             ),
+            // Borde de la gráfica
             borderData: FlBorderData(
               show: true,
               border: Border.all(color: Colors.white24),
             ),
+            // Configuración de la línea de datos
             lineBarsData: [
               LineChartBarData(
                 spots: _getChartSpots(),
-                isCurved: true,
-                curveSmoothness: 0.35,
+                isCurved: true, // Hace que la línea sea curva
+                curveSmoothness: 0.35, // Nivel de suavizado de la curva
                 barWidth: 4,
                 color: Colors.pinkAccent,
                 isStrokeCapRound: true,
                 preventCurveOverShooting: true,
+                // Área sombreada debajo de la línea
                 belowBarData: BarAreaData(
                   show: true,
                   spotsLine: BarAreaSpotsLine(show: false),
@@ -155,6 +174,7 @@ class UserExerciseChart extends StatelessWidget {
                     end: Alignment.bottomCenter,
                   ),
                 ),
+                // Configuración de los puntos en la línea
                 dotData: FlDotData(
                   show: true,
                   getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
@@ -164,18 +184,21 @@ class UserExerciseChart extends StatelessWidget {
                     strokeColor: Colors.white,
                   ),
                 ),
+                // Efecto de sombra en la línea
                 shadow: const Shadow(
                   color: Colors.pinkAccent,
                   blurRadius: 8,
                 ),
               ),
             ],
+            // Configuración de la interactividad y tooltips
             lineTouchData: LineTouchData(
               enabled: true,
               touchTooltipData: LineTouchTooltipData(
                 tooltipBgColor: Colors.black87,
                 tooltipRoundedRadius: 8,
                 tooltipPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                // Personalización del contenido del tooltip
                 getTooltipItems: (touchedSpots) {
                   return touchedSpots.map((spot) {
                     final date = logs[spot.x.toInt()]['fecha'] as DateTime;
